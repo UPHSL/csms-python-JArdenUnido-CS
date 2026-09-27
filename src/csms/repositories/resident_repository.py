@@ -222,3 +222,53 @@ class ResidentRepository:
             )
             for row in rows
         ]
+
+    def update(self, resident: Resident) -> Resident:
+        """Persist permitted field changes to an existing Resident record.
+
+        Only the editable fields are written:
+        ``first_name``, ``last_name``, ``address``, ``contact_number``,
+        ``email``.
+
+        The following fields are intentionally never touched by this method:
+
+        * ``id``   – the Resident's identity; must not change.
+        * ``status`` – managed separately by T07.
+
+        The UPDATE targets exactly the Resident identified by ``resident.id``
+        so no other Resident row is affected.
+
+        Args:
+            resident: The :class:`Resident` carrying the new values.  Its
+                ``id`` must refer to an existing row.
+
+        Returns:
+            The same :class:`Resident` object, which now represents the
+            persisted state.
+        """
+        connection = get_connection(self._database_path)
+        try:
+            connection.execute(
+                """
+                UPDATE residents
+                SET first_name      = ?,
+                    last_name       = ?,
+                    address         = ?,
+                    contact_number  = ?,
+                    email           = ?
+                WHERE id = ?
+                """,
+                (
+                    resident.first_name,
+                    resident.last_name,
+                    resident.address,
+                    resident.contact_number,
+                    resident.email,
+                    resident.id,
+                ),
+            )
+            connection.commit()
+        finally:
+            connection.close()
+
+        return resident
