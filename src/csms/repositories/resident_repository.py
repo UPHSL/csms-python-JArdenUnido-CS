@@ -1,22 +1,31 @@
-"""Resident persistence repository (T03).
+"""Resident persistence repository (T03 + T05).
 
 This module provides :class:`ResidentRepository`, the single component
 responsible for storing and retrieving :class:`~csms.models.resident.Resident`
 objects from the SQLite database.
 
-Responsibilities of this class (T03 scope only):
+Responsibilities:
 
 * **save** – INSERT a new Resident row and write the database-generated
-  identifier back onto the Resident object.
+  identifier back onto the Resident object.  (T03)
 * **find_by_id** – SELECT a Resident row by its primary key and reconstruct
-  a :class:`Resident` instance, or return ``None`` when no record exists.
+  a :class:`Resident` instance, or return ``None`` when no record exists.  (T03)
+* **find_all** – SELECT all Resident rows ordered deterministically by
+  last name, first name, and id.  Returns an empty list when no records
+  exist.  (T05)
+* **search_by_name** – SELECT Resident rows whose first name or last name
+  contains the given search term, using a case-insensitive partial match
+  performed entirely inside the database query.  Returns an empty list when
+  nothing matches.  (T05)
 
 What this class intentionally does NOT do:
 
 * It does not validate Resident information – that is T02's responsibility
   (:mod:`csms.utils.validators`).
-* It does not implement search, listing, update, deletion, or any other
-  operation beyond the two methods above – those belong to future tickets.
+* It does not implement update, deletion, or other operations – those belong
+  to future tickets.
+* The search is performed through parameterised SQL; raw search text is never
+  concatenated into a query string.
 """
 
 from csms.database import get_connection, init_db
@@ -118,3 +127,98 @@ class ResidentRepository:
             email=row["email"],
             status=row["status"],
         )
+
+    def find_all(self) -> list[Resident]:
+        """Retrieve every persisted Resident in deterministic alphabetical order.
+
+        The ordering is:
+        1. ``last_name`` ascending (case-insensitive)
+        2. ``first_name`` ascending (case-insensitive)
+        3. ``id`` ascending (tie-breaker)
+
+        Returns:
+            A :class:`list` of :class:`Resident` objects.  An empty list is
+            returned when no records exist — ``None`` is never returned.
+        """
+        connection = get_connection(self._database_path)
+        try:
+            cursor = connection.execute(
+                "SELECT id, first_name, last_name, address, contact_number, email, status "
+                "FROM residents "
+                "ORDER BY LOWER(last_name) ASC, LOWER(first_name) ASC, id ASC"
+            )
+            rows = cursor.fetchall()
+        finally:
+            connection.close()
+
+        return [
+            Resident(
+                id=row["id"],
+                first_name=row["first_name"],
+                last_name=row["last_name"],
+                address=row["address"],
+                contact_number=row["contact_number"],
+                email=row["email"],
+                status=row["status"],
+            )
+            for row in rows
+        ]
+
+    def search_by_name(self, term: str) -> list[Resident]:
+        """Search for Residents whose first or last name contains ``term``.
+
+        The search is performed entirely inside the database using a
+        parameterised ``LIKE`` query — no records are loaded into memory
+        for in-application filtering.  The comparison is case-insensitive
+        because both the stored values and the search term are lowercased
+        via SQLite's ``LOWER()`` function before matching.
+
+        A Resident matches when ``term`` appears anywhere within either
+        ``first_name`` or ``last_name`` (partial-match / contains search).
+
+        Each matching Resident appears exactly once even if the term matches
+        both the first name and the last name, because ``OR`` in a single
+        ``WHERE`` clause naturally deduplicates rows.
+
+        Results are ordered by the same deterministic rule as
+        :meth:`find_all` (last name → first name → id, all ascending).
+
+        The raw ``term`` value is never concatenated into the SQL string.
+        It is passed as a query parameter after being wrapped in ``%``
+        wildcards, which is the correct parameterised approach.
+
+        Args:
+            term: The (already-trimmed) search text.  Must not be blank;
+                callers are responsible for treating a blank term as a
+                request for :meth:`find_all` instead.
+
+        Returns:
+            A :class:`list` of matching :class:`Resident` objects in the
+            required order.  An empty list is returned when nothing matches.
+        """
+        pattern = f"%{term.lower()}%"
+        connection = get_connection(self._database_path)
+        try:
+            cursor = connection.execute(
+                "SELECT id, first_name, last_name, address, contact_number, email, status "
+                "FROM residents "
+                "WHERE LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ? "
+                "ORDER BY LOWER(last_name) ASC, LOWER(first_name) ASC, id ASC",
+                (pattern, pattern),
+            )
+            rows = cursor.fetchall()
+        finally:
+            connection.close()
+
+        return [
+            Resident(
+                id=row["id"],
+                first_name=row["first_name"],
+                last_name=row["last_name"],
+                address=row["address"],
+                contact_number=row["contact_number"],
+                email=row["email"],
+                status=row["status"],
+            )
+            for row in rows
+        ]
