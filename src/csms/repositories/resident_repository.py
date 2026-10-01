@@ -272,3 +272,31 @@ class ResidentRepository:
             connection.close()
 
         return resident
+
+    def deactivate_by_id(self, resident_id: int) -> None:
+        """Set the status of the target Resident to ``'Inactive'``.
+
+        This is a soft-deactivation operation — the Resident record is
+        kept in persistence; only the ``status`` column is changed.
+
+        The UPDATE targets exactly the Resident identified by
+        ``resident_id``; no other Resident row is affected.  The method
+        uses a fixed ``'Inactive'`` value so the caller cannot accidentally
+        supply an arbitrary status string (T07 is specifically an
+        Active-to-Inactive transition).
+
+        The caller is responsible for verifying that the Resident exists and
+        checking its current status before calling this method.
+
+        Args:
+            resident_id: The persisted ID of the Resident to deactivate.
+        """
+        connection = get_connection(self._database_path)
+        try:
+            connection.execute(
+                "UPDATE residents SET status = ? WHERE id = ?",
+                ("Inactive", resident_id),
+            )
+            connection.commit()
+        finally:
+            connection.close()
