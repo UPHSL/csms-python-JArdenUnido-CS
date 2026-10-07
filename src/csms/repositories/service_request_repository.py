@@ -119,3 +119,34 @@ class ServiceRequestRepository:
             date_requested=datetime.date.fromisoformat(row["date_requested"]),
             status=row["status"],
         )
+
+    def update_status(self, sr_id: int, new_status: str) -> None:
+        """Update only the ``status`` column of an existing Service Request row.
+
+        The UPDATE is deliberately narrow: it targets exactly the row
+        identified by ``sr_id`` and writes only the ``status`` column.
+        All other columns (``resident_id``, ``service_type``,
+        ``description``, ``date_requested``) are untouched.
+
+        The ``new_status`` value is supplied as a parameterised query
+        argument — it is never concatenated into the SQL string.
+
+        The caller is responsible for verifying that the Service Request
+        exists and that the transition is allowed *before* calling this
+        method.  The repository's sole concern here is the mechanics of
+        the SQL UPDATE.
+
+        Args:
+            sr_id:      The primary-key identifier of the Service Request
+                        whose status should be changed.
+            new_status: The target status value to persist.
+        """
+        connection = get_connection(self._database_path)
+        try:
+            connection.execute(
+                "UPDATE service_requests SET status = ? WHERE id = ?",
+                (new_status, sr_id),
+            )
+            connection.commit()
+        finally:
+            connection.close()
