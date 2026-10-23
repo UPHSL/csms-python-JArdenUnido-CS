@@ -150,3 +150,116 @@ class ServiceRequestRepository:
             connection.commit()
         finally:
             connection.close()
+
+    def find_all(self) -> list[ServiceRequest]:
+        """Retrieve every persisted Service Request in deterministic order.
+
+        The ordering is:
+        1. ``date_requested`` DESC  (newer dates first)
+        2. ``id`` DESC              (higher ID first when dates are equal)
+
+        This ordering is applied at the database level so it is consistent
+        across all T11 query operations.
+
+        Returns:
+            A :class:`list` of :class:`ServiceRequest` objects.  An empty
+            list is returned when no records exist — ``None`` is never
+            returned.
+        """
+        connection = get_connection(self._database_path)
+        try:
+            cursor = connection.execute(
+                "SELECT id, resident_id, service_type, description, "
+                "date_requested, status "
+                "FROM service_requests "
+                "ORDER BY date_requested DESC, id DESC"
+            )
+            rows = cursor.fetchall()
+        finally:
+            connection.close()
+
+        return [
+            ServiceRequest(
+                id=row["id"],
+                resident_id=row["resident_id"],
+                service_type=row["service_type"],
+                description=row["description"],
+                date_requested=datetime.date.fromisoformat(row["date_requested"]),
+                status=row["status"],
+            )
+            for row in rows
+        ]
+
+    def search(
+        self,
+        term: str,
+        status_filter: str | None = None,
+    ) -> list[ServiceRequest]:
+        """Search Service Requests by text and/or status filter.
+
+        The search is performed entirely inside the database:
+
+        * A non-empty ``term`` is matched case-insensitively against both
+          ``service_type`` and ``description`` using ``LOWER() LIKE ?``.
+          The ``%term%`` wildcard is supplied as a parameterised argument —
+          raw user input is never concatenated into the SQL string.
+        * When ``status_filter`` is provided, results are further restricted
+          to records whose ``status`` equals the filter value exactly.
+        * Results are ordered ``date_requested DESC, id DESC``.
+
+        Using OR inside a single WHERE clause ensures that a Service Request
+        matching both ``service_type`` and ``description`` appears exactly
+        once — no UNION that could produce duplicates.
+
+        Args:
+            term:          The already-trimmed, lower-cased search pattern
+                           (without ``%`` wildcards — this method adds them).
+            status_filter: Optional status string to restrict results.
+                           ``None`` means no status restriction.
+
+        Returns:
+            A :class:`list` of matching :class:`ServiceRequest` objects in
+            the required order.  An empty list when nothing matches.
+        """
+        pattern = f"%{term.lower()}%"
+
+        if status_filter is None:
+            sql = (
+                "SELECT id, resident_id, service_type, description, "
+                "date_requested, status "
+                "FROM service_requests "
+                "WHERE LOWER(service_type) LIKE ? "
+                "   OR LOWER(description)  LIKE ? "
+                "ORDER BY date_requested DESC, id DESC"
+            )
+            params: tuple[object, ...] = (pattern, pattern)
+        else:
+            sql = (
+                "SELECT id, resident_id, service_type, description, "
+                "date_requested, status "
+                "FROM service_requests "
+                "WHERE (LOWER(service_type) LIKE ? "
+                "    OR LOWER(description)  LIKE ?) "
+                "  AND status = ? "
+                "ORDER BY date_requested DESC, id DESC"
+            )
+            params = (pattern, pattern, status_filter)
+
+        connection = get_connection(self._database_path)
+        try:
+            cursor = connection.execute(sql, params)
+            rows = cursor.fetchall()
+        finally:
+            connection.close()
+
+        return [
+            ServiceRequest(
+                id=row["id"],
+                resident_id=row["resident_id"],
+                service_type=row["service_type"],
+                description=row["description"],
+                date_requested=datetime.date.fromisoformat(row["date_requested"]),
+                status=row["status"],
+            )
+            for row in rows
+        ]
