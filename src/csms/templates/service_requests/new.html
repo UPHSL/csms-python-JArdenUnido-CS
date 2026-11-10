@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Service Request – {{ application_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="mgmt-container">
+
+    <header class="mgmt-header">
+        <h1>Submit Service Request</h1>
+        <a href="{{ url_for('service_requests.list_requests') }}" class="btn btn-secondary">← Back to Service Requests</a>
+    </header>
+
+    {% if errors %}
+    <div class="alert alert-error">
+        <strong>Please correct the following:</strong>
+        <ul>
+            {% for error in errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <section class="form-card">
+        <div class="form-info">
+            <p><strong>Need help finding a Resident ID?</strong> <a href="{{ url_for('residents.list_residents') }}" target="_blank">View Residents →</a></p>
+        </div>
+
+        <form method="post" action="{{ url_for('service_requests.submit_request') }}" novalidate>
+            <div class="form-group">
+                <label for="resident_id">Resident ID</label>
+                <input type="number" id="resident_id" name="resident_id"
+                       value="{{ form_data.resident_id | default('') }}"
+                       class="form-control" required min="1">
+            </div>
+            <div class="form-group">
+                <label for="service_type">Service Type</label>
+                <input type="text" id="service_type" name="service_type"
+                       value="{{ form_data.service_type | default('') }}"
+                       class="form-control" placeholder="e.g., Barangay Clearance, Medical Certificate"
+                       required>
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description" name="description" class="form-control" rows="4"
+                          placeholder="Provide details about the service request…" required>{{ form_data.description | default('') }}</textarea>
+            </div>
+            <div class="form-group">
+                <label for="date_requested">Date Requested</label>
+                <input type="date" id="date_requested" name="date_requested"
+                       value="{{ form_data.date_requested | default('') }}"
+                       class="form-control" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit Service Request</button>
+                <a href="{{ url_for('service_requests.list_requests') }}" class="btn btn-link">Cancel</a>
+            </div>
+        </form>
+    </section>
+
+</div>
+</body>
+</html>
