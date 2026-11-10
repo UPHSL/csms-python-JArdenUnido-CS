@@ -61,6 +61,11 @@ class ServiceRequestRepository:
         Returns:
             The same :class:`ServiceRequest` object with ``id`` now set to the
             value assigned by the database.
+
+        Raises:
+            Exception: If the INSERT or COMMIT fails, the transaction is
+                rolled back and the exception is propagated. The service
+                request object is not modified.
         """
         connection = get_connection(self._database_path)
         try:
@@ -81,6 +86,9 @@ class ServiceRequestRepository:
             )
             connection.commit()
             service_request.id = cursor.lastrowid
+        except Exception:
+            connection.rollback()
+            raise
         finally:
             connection.close()
 
@@ -140,6 +148,10 @@ class ServiceRequestRepository:
             sr_id:      The primary-key identifier of the Service Request
                         whose status should be changed.
             new_status: The target status value to persist.
+
+        Raises:
+            Exception: If the UPDATE or COMMIT fails, the transaction is
+                rolled back and the exception is propagated.
         """
         connection = get_connection(self._database_path)
         try:
@@ -148,6 +160,9 @@ class ServiceRequestRepository:
                 (new_status, sr_id),
             )
             connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
         finally:
             connection.close()
 

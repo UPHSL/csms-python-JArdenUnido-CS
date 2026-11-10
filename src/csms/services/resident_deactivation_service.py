@@ -139,7 +139,14 @@ class ResidentDeactivationService:
         self._repository.deactivate_by_id(resident_id)
         updated = self._repository.find_by_id(resident_id)
 
-        # Step 6: return success with the persisted Resident.
+        # Step 6: verify re-fetch succeeded and return success with the persisted Resident.
+        if updated is None:
+            # This should not happen if commit succeeded, but guard against it.
+            raise RuntimeError(
+                f"Resident {resident_id} could not be re-fetched after deactivation. "
+                "This suggests a database consistency issue."
+            )
+
         return DeactivationResult(
             success=True,
             resident=updated,

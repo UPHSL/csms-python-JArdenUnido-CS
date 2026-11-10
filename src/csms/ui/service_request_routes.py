@@ -115,12 +115,13 @@ def submit_request():
     # Parse date_requested as datetime.date.
     try:
         if form_data["date_requested"]:
-            date_parts = form_data["date_requested"].split("-")
-            date_requested = datetime.date(int(date_parts[0]), int(date_parts[1]), int(date_parts[2]))
+            date_requested = datetime.date.fromisoformat(form_data["date_requested"])
         else:
             date_requested = None
-    except (ValueError, IndexError, TypeError):
+    except (ValueError, TypeError):
         date_requested = None
+        # Add validation error for clearer feedback
+        # (T09 validators will also validate date_requested and provide error message)
 
     candidate = ServiceRequest(
         resident_id=resident_id,

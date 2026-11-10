@@ -66,6 +66,11 @@ class ResidentRepository:
         Returns:
             The same :class:`Resident` object with ``id`` now set to the
             value assigned by the database.
+
+        Raises:
+            Exception: If the INSERT or COMMIT fails, the transaction is
+                rolled back and the exception is propagated. The resident
+                object is not modified.
         """
         connection = get_connection(self._database_path)
         try:
@@ -87,6 +92,9 @@ class ResidentRepository:
             )
             connection.commit()
             resident.id = cursor.lastrowid
+        except Exception:
+            connection.rollback()
+            raise
         finally:
             connection.close()
 
@@ -245,6 +253,10 @@ class ResidentRepository:
         Returns:
             The same :class:`Resident` object, which now represents the
             persisted state.
+
+        Raises:
+            Exception: If the UPDATE or COMMIT fails, the transaction is
+                rolled back and the exception is propagated.
         """
         connection = get_connection(self._database_path)
         try:
@@ -268,6 +280,9 @@ class ResidentRepository:
                 ),
             )
             connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
         finally:
             connection.close()
 
@@ -290,6 +305,10 @@ class ResidentRepository:
 
         Args:
             resident_id: The persisted ID of the Resident to deactivate.
+
+        Raises:
+            Exception: If the UPDATE or COMMIT fails, the transaction is
+                rolled back and the exception is propagated.
         """
         connection = get_connection(self._database_path)
         try:
@@ -298,6 +317,9 @@ class ResidentRepository:
                 ("Inactive", resident_id),
             )
             connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
         finally:
             connection.close()
     # =========================================================================
