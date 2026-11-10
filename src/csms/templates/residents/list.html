@@ -11,7 +11,10 @@
 
     <header class="mgmt-header">
         <h1>Resident Management</h1>
-        <a href="{{ url_for('residents.register_form') }}" class="btn btn-primary">+ Register Resident</a>
+        <div class="header-actions">
+            <a href="{{ url_for('residents.register_form') }}" class="btn btn-primary">+ Register Resident</a>
+            <a href="{{ url_for('service_requests.list_requests') }}" class="btn btn-secondary btn-secondary-outlined">Service Requests</a>
+        </div>
     </header>
 
     {% with messages = get_flashed_messages(with_categories=true) %}

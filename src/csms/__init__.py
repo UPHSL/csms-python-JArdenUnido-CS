@@ -27,4 +27,7 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
     from csms.ui.resident_routes import residents_bp
     app.register_blueprint(residents_bp)
 
+    from csms.ui.service_request_routes import service_requests_bp
+    app.register_blueprint(service_requests_bp)
+
     return app
