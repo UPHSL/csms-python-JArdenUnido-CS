@@ -263,3 +263,78 @@ class ServiceRequestRepository:
             )
             for row in rows
         ]
+
+    # =========================================================================
+    # Aggregate Queries (T14 Dashboard)
+    # =========================================================================
+
+    def count_all(self) -> int:
+        """Return the total number of persisted Service Requests.
+
+        Returns:
+            The count of all Service Requests in the system.
+        """
+        connection = get_connection(self._database_path)
+        try:
+            cursor = connection.execute("SELECT COUNT(*) as cnt FROM service_requests")
+            row = cursor.fetchone()
+            return row["cnt"] if row else 0
+        finally:
+            connection.close()
+
+    def count_by_status(self, status: str) -> int:
+        """Return the count of Service Requests with the given status.
+
+        Args:
+            status: The status to count (e.g., 'Pending', 'In Progress', etc.).
+
+        Returns:
+            The number of Service Requests with that status; 0 if none.
+        """
+        connection = get_connection(self._database_path)
+        try:
+            cursor = connection.execute(
+                "SELECT COUNT(*) as cnt FROM service_requests WHERE status = ?",
+                (status,),
+            )
+            row = cursor.fetchone()
+            return row["cnt"] if row else 0
+        finally:
+            connection.close()
+
+    def find_recent(self, limit: int = 5) -> list[ServiceRequest]:
+        """Retrieve the most recent Service Requests up to a limit.
+
+        Ordering: date_requested DESC, then id DESC.
+
+        Args:
+            limit: Maximum number of records to return (default 5).
+
+        Returns:
+            A list of recent Service Requests in deterministic order.
+        """
+        connection = get_connection(self._database_path)
+        try:
+            cursor = connection.execute(
+                "SELECT id, resident_id, service_type, description, "
+                "date_requested, status "
+                "FROM service_requests "
+                "ORDER BY date_requested DESC, id DESC "
+                "LIMIT ?",
+                (limit,),
+            )
+            rows = cursor.fetchall()
+        finally:
+            connection.close()
+
+        return [
+            ServiceRequest(
+                id=row["id"],
+                resident_id=row["resident_id"],
+                service_type=row["service_type"],
+                description=row["description"],
+                date_requested=datetime.date.fromisoformat(row["date_requested"]),
+                status=row["status"],
+            )
+            for row in rows
+        ]
