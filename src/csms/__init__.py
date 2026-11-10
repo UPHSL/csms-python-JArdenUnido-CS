@@ -30,4 +30,7 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
     from csms.ui.service_request_routes import service_requests_bp
     app.register_blueprint(service_requests_bp)
 
+    from csms.ui.dashboard_routes import dashboard_bp
+    app.register_blueprint(dashboard_bp)
+
     return app
