@@ -22,7 +22,15 @@ def create_app(test_config: dict[str, object] | None = None) -> Flask:
         app.config.update(test_config)
 
     from csms.ui.routes import main_blueprint
-
     app.register_blueprint(main_blueprint)
+
+    from csms.ui.resident_routes import residents_bp
+    app.register_blueprint(residents_bp)
+
+    from csms.ui.service_request_routes import service_requests_bp
+    app.register_blueprint(service_requests_bp)
+
+    from csms.ui.dashboard_routes import dashboard_bp
+    app.register_blueprint(dashboard_bp)
 
     return app

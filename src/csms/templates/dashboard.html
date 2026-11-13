@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSMS Dashboard – {{ application_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="mgmt-container">
+
+    <header class="mgmt-header">
+        <h1>CSMS Dashboard</h1>
+        <div class="header-actions">
+            <a href="{{ url_for('residents.list_residents') }}" class="btn btn-secondary btn-secondary-outlined">Residents</a>
+            <a href="{{ url_for('service_requests.list_requests') }}" class="btn btn-secondary btn-secondary-outlined">Service Requests</a>
+        </div>
+    </header>
+
+    <!-- Resident Summary -->
+    <section class="dashboard-section">
+        <h2>Resident Summary</h2>
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <div class="dashboard-label">Total Residents</div>
+                <div class="dashboard-value">{{ summary.residents.total }}</div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dashboard-label">Active</div>
+                <div class="dashboard-value">{{ summary.residents.active }}</div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dashboard-label">Inactive</div>
+                <div class="dashboard-value">{{ summary.residents.inactive }}</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Service Request Summary -->
+    <section class="dashboard-section">
+        <h2>Service Request Summary</h2>
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <div class="dashboard-label">Total Requests</div>
+                <div class="dashboard-value">{{ summary.service_requests.total }}</div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dashboard-label">Pending</div>
+                <div class="dashboard-value">{{ summary.service_requests.pending }}</div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dashboard-label">In Progress</div>
+                <div class="dashboard-value">{{ summary.service_requests.in_progress }}</div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dashboard-label">Completed</div>
+                <div class="dashboard-value">{{ summary.service_requests.completed }}</div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dashboard-label">Cancelled</div>
+                <div class="dashboard-value">{{ summary.service_requests.cancelled }}</div>
+            </div>
+            <div class="dashboard-card">
+                <div class="dashboard-label">Open</div>
+                <div class="dashboard-value">{{ summary.service_requests.open }}</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Service Requests -->
+    <section class="dashboard-section">
+        <h2>Recent Service Requests</h2>
+        {% if summary.recent_requests %}
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Resident ID</th>
+                    <th>Service Type</th>
+                    <th>Date Requested</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in summary.recent_requests %}
+                <tr>
+                    <td>{{ req.id }}</td>
+                    <td>{{ req.resident_id }}</td>
+                    <td>{{ req.service_type }}</td>
+                    <td>{{ req.date_requested }}</td>
+                    <td>
+                        <span class="status-badge status-{{ req.status | lower | replace(' ', '-') }}">
+                            {{ req.status }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{{ url_for('service_requests.view_request', request_id=req.id) }}" class="btn btn-sm btn-secondary">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-message">
+            <p>No Service Requests available.</p>
+        </div>
+        {% endif %}
+    </section>
+
+</div>
+</body>
+</html>

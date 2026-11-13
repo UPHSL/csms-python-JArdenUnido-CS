@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resident Management – {{ application_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="mgmt-container">
+
+    <header class="mgmt-header">
+        <h1>Resident Management</h1>
+        <div class="header-actions">
+            <a href="{{ url_for('residents.register_form') }}" class="btn btn-primary">+ Register Resident</a>
+            <a href="{{ url_for('service_requests.list_requests') }}" class="btn btn-secondary btn-secondary-outlined">Service Requests</a>
+        </div>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <section class="search-bar">
+        <form method="get" action="{{ url_for('residents.list_residents') }}">
+            <div class="search-row">
+                <input
+                    type="text"
+                    name="q"
+                    id="q"
+                    value="{{ query }}"
+                    placeholder="Search by first or last name…"
+                    class="search-input"
+                    aria-label="Search Residents"
+                >
+                <button type="submit" class="btn btn-secondary">Search</button>
+                {% if query %}
+                <a href="{{ url_for('residents.list_residents') }}" class="btn btn-link">Clear</a>
+                {% endif %}
+            </div>
+        </form>
+    </section>
+
+    {% if residents %}
+    <section class="table-wrapper">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Contact Number</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for resident in residents %}
+                <tr>
+                    <td>{{ resident.id }}</td>
+                    <td>{{ resident.first_name }} {{ resident.last_name }}</td>
+                    <td>{{ resident.address }}</td>
+                    <td>{{ resident.contact_number }}</td>
+                    <td>{{ resident.email }}</td>
+                    <td>
+                        <span class="status-badge status-{{ resident.status | lower | replace(' ', '-') }}">
+                            {{ resident.status }}
+                        </span>
+                    </td>
+                    <td class="actions-cell">
+                        <a href="{{ url_for('residents.edit_form', resident_id=resident.id) }}" class="btn btn-sm btn-secondary">Edit</a>
+                        {% if resident.status == 'Active' %}
+                        <form method="post" action="{{ url_for('residents.deactivate', resident_id=resident.id) }}" class="inline-form"
+                              onsubmit="return confirm('Deactivate this Resident?')">
+                            <button type="submit" class="btn btn-sm btn-danger">Deactivate</button>
+                        </form>
+                        {% else %}
+                        <span class="status-label-inline">Inactive</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {% else %}
+    <div class="empty-message">
+        <p>No Residents found.</p>
+    </div>
+    {% endif %}
+
+</div>
+</body>
+</html>

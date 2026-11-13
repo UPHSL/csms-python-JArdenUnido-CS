@@ -78,3 +78,395 @@ dd {
     margin-bottom: 0;
     font-weight: 700;
 }
+
+
+/* =========================================================
+   Resident Management Interface (T12)
+   ========================================================= */
+
+.mgmt-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+}
+
+.mgmt-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.mgmt-header h1 {
+    margin: 0;
+    font-size: 1.75rem;
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 0.45rem 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.4rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+    line-height: 1.5;
+}
+.btn-primary   { background: #2563eb; color: #fff; border-color: #2563eb; }
+.btn-secondary { background: #f3f4f6; color: #374151; border-color: #d1d5db; }
+.btn-danger    { background: #dc2626; color: #fff; border-color: #dc2626; }
+.btn-link      { background: transparent; color: #2563eb; }
+.btn-sm        { padding: 0.25rem 0.65rem; font-size: 0.8rem; }
+.btn:hover     { opacity: 0.88; }
+
+/* Alerts */
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: 0.4rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+.alert-success { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+.alert-error   { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+.alert-info    { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+.alert ul      { margin: 0.5rem 0 0; padding-left: 1.25rem; }
+
+/* Search bar */
+.search-bar { margin-bottom: 1.25rem; }
+.search-row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+.search-input {
+    flex: 1;
+    min-width: 180px;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.4rem;
+    font-size: 0.9rem;
+}
+
+/* Data table */
+.table-wrapper { overflow-x: auto; }
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+.data-table th {
+    background: #f9fafb;
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 2px solid #e5e7eb;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.data-table td {
+    padding: 0.55rem 0.75rem;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+.data-table tr:hover td { background: #f9fafb; }
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.status-active   { background: #d1fae5; color: #065f46; }
+.status-inactive { background: #f3f4f6; color: #6b7280; }
+.status-label-inline { font-size: 0.8rem; color: #9ca3af; font-style: italic; }
+
+/* Actions cell */
+.actions-cell { white-space: nowrap; }
+.actions-cell > * + * { margin-left: 0.35rem; }
+.inline-form { display: inline; }
+
+/* Empty message */
+.empty-message {
+    padding: 2rem;
+    text-align: center;
+    color: #6b7280;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    border: 1px dashed #d1d5db;
+}
+
+/* Form card */
+.form-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1.75rem;
+    max-width: 560px;
+}
+.readonly-info {
+    margin-bottom: 1.25rem;
+    padding: 0.6rem 0.75rem;
+    background: #f9fafb;
+    border-radius: 0.4rem;
+    font-size: 0.875rem;
+}
+.readonly-label { font-weight: 700; color: #374151; }
+.readonly-value { color: #111827; }
+
+/* Form groups */
+.form-group { margin-bottom: 1rem; }
+.form-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.35rem;
+}
+.form-control {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.4rem;
+    font-size: 0.9rem;
+    color: #111827;
+}
+.form-control:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgb(37 99 235 / 15%);
+}
+.form-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-top: 1.5rem;
+}
+
+
+/* Service Request Status Badges */
+.status-pending         { background: #fef08a; color: #713f12; }
+.status-in-progress     { background: #bfdbfe; color: #1e3a8a; }
+.status-completed       { background: #dcfce7; color: #166534; }
+.status-cancelled       { background: #f5f5f4; color: #7c2d12; }
+
+/* Header actions layout */
+.header-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.btn-secondary-outlined {
+    background: transparent;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+/* Filters section */
+.filters-section { margin-bottom: 1.25rem; }
+.filters-form { display: flex; flex-direction: column; gap: 0.75rem; }
+.filter-row {
+    display: grid;
+    grid-template-columns: 1fr 200px auto;
+    gap: 0.75rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+}
+@media (max-width: 768px) {
+    .filter-row {
+        grid-template-columns: 1fr;
+    }
+}
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+.filter-group label { font-weight: 600; font-size: 0.875rem; margin-bottom: 0.25rem; }
+.filter-actions { display: flex; gap: 0.5rem; }
+
+/* Description cell truncation */
+.description-cell {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Details card */
+.details-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.75rem;
+    padding: 1.75rem;
+    max-width: 800px;
+}
+
+.details-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.details-header h2 {
+    margin: 0;
+    font-size: 1.375rem;
+}
+
+.details-grid {
+    margin-bottom: 1.5rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+.detail-row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 1rem;
+    padding: 0.5rem 0;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #374151;
+}
+
+.detail-value {
+    color: #111827;
+}
+
+.detail-section {
+    margin-bottom: 1.5rem;
+}
+
+.detail-section h3 {
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+}
+
+.description-full {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: #1f2937;
+    line-height: 1.6;
+}
+
+/* Workflow actions */
+.workflow-actions {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.terminal-message {
+    padding: 1rem;
+    background: #f0fdf4;
+    border-left: 4px solid #22c55e;
+    color: #166534;
+    border-radius: 0.4rem;
+}
+
+/* Form info helper */
+.form-info {
+    margin-bottom: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    border-radius: 0.4rem;
+    color: #1e40af;
+    font-size: 0.9rem;
+}
+
+.form-info a {
+    color: #1e40af;
+    text-decoration: underline;
+}
+
+/* Textarea */
+textarea.form-control {
+    font-family: inherit;
+    resize: vertical;
+}
+
+
+/* Dashboard Styles (T14) */
+
+.dashboard-section {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+.dashboard-section h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #1f2937;
+}
+
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+}
+
+.dashboard-card {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+    border: 1px solid #bae6fd;
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    text-align: center;
+}
+
+.dashboard-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #0369a1;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.dashboard-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #0c4a6e;
+}
+
+
+/* =========================================================
+   Application Footer (T16 Release)
+   ========================================================= */
+
+.app-footer {
+    margin-top: 2rem;
+    padding: 1rem;
+    text-align: center;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.app-footer p {
+    margin: 0;
+}
+
+.app-footer strong {
+    color: #374151;
+}

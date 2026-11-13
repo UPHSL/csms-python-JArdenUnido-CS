@@ -18,11 +18,16 @@ def index() -> str:
 
 @main_blueprint.get("/health")
 def health():
-    """Return a simple application health response."""
+    """Return the application health response with version and status.
+    
+    Returns a JSON response identifying the application, release version,
+    and health status. Does not expose sensitive information.
+    """
     return jsonify(
         {
-            "application": current_app.config["APP_NAME"],
-            "status": "ok",
+            "application": current_app.config["APP_SHORT_NAME"],
+            "application_name": current_app.config["APP_NAME"],
             "version": current_app.config["APP_VERSION"],
+            "status": "healthy",
         }
     )
