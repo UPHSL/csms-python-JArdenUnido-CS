@@ -447,3 +447,26 @@ textarea.form-control {
     font-weight: 700;
     color: #0c4a6e;
 }
+
+
+/* =========================================================
+   Application Footer (T16 Release)
+   ========================================================= */
+
+.app-footer {
+    margin-top: 2rem;
+    padding: 1rem;
+    text-align: center;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.app-footer p {
+    margin: 0;
+}
+
+.app-footer strong {
+    color: #374151;
+}
